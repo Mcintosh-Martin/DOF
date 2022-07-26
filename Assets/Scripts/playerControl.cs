@@ -19,10 +19,11 @@ public class playerControl : MonoBehaviour
 
     //UI
     public Text text;
-    public RawImage RenderText;
+    public Canvas RenderText;
     public bool hooverdSpecial = false;
     public bool clickedSpecial = false;
-    public Canvas TestCanvas;
+    //public Canvas TestCanvas;
+    public Canvas invCanvas;
 
     //Item that is active in scene thats being interacted with
     private GameObject interactableGameObject;
@@ -122,7 +123,7 @@ public class playerControl : MonoBehaviour
     //Handle the cameras rotation baseed on mouse postition
     void CameraMove()
     {
-        if(!clickedSpecial && !TestCanvas.enabled)
+        if(!clickedSpecial && !invCanvas.enabled)
         { 
             // mouse look at
             curRot.x += Input.GetAxis("Mouse X") * sensitivity;
@@ -181,12 +182,14 @@ public class playerControl : MonoBehaviour
             hooverdSpecial = false;
         }
 
+        //RenderText.active;
+
         if (Input.GetKey(KeyCode.Tab) && RenderText.enabled)
         {
             if(curInvItem != 0)
             {
                 inventory[curInvItem - 1].gameObject.GetComponent<MatChange>().toggleRotate(false);
-                TestCanvas.transform.GetChild(0).GetComponent<InventoryUIUpdate>().Assign();                
+                invCanvas.transform.GetChild(1).GetComponent<InventoryUIUpdate>().Assign();                
             }
             else
             {
@@ -213,11 +216,12 @@ public class playerControl : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.I))
         {
-            if (!TestCanvas.enabled)
+            //invCanvas.enabled = true;
+            if (!invCanvas.enabled)
             {
-                TestCanvas.transform.GetChild(0).GetComponent<InventoryUIUpdate>().Assign();
+                invCanvas.transform.GetChild(1).GetComponent<InventoryUIUpdate>().Assign();
 
-                TestCanvas.enabled = true;
+                invCanvas.enabled = true;
                 Cursor.visible = true;
                 Cursor.lockState = CursorLockMode.None;
             }
@@ -229,7 +233,7 @@ public class playerControl : MonoBehaviour
                         inventory[i].gameObject.GetComponent<MatChange>().toggleRotate(false);
                 }
 
-                TestCanvas.enabled = false;
+                invCanvas.enabled = false;
                 Cursor.visible = false;
                 Cursor.lockState = CursorLockMode.Locked;
             }
@@ -250,6 +254,7 @@ public class playerControl : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
+        //RenderText.enabled = true;
         RenderText.enabled = true;
     }
 
@@ -264,9 +269,10 @@ public class playerControl : MonoBehaviour
             //Cursor.visible = true;
             //Cursor.lockState = CursorLockMode.None;
 
+            //RenderText.enabled = true;
             RenderText.enabled = true;
 
-            
+
         }
         else
         {

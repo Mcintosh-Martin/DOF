@@ -13,17 +13,16 @@ public class InventoryUIUpdate : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        buttons = new GameObject[3];
+        buttons = new GameObject[8];
 
-        for(int i = 0; i < buttons.Length; i++)
+        for (int i = 0; i < buttons.Length; i++)
         {
-            buttons[i] = transform.GetChild(i).gameObject;
+            buttons[i] = transform.GetChild(i+1).gameObject;
             buttons[i].GetComponent<Button>().enabled = false;
-        }
 
-        buttons[0].GetComponent<Button>().onClick.AddListener(delegate { buttonOneClick(0); });
-        buttons[1].GetComponent<Button>().onClick.AddListener(delegate { buttonOneClick(1); });
-        buttons[2].GetComponent<Button>().onClick.AddListener(delegate { buttonOneClick(2); });
+            int index = i;
+            buttons[i].GetComponent<Button>().onClick.AddListener(delegate { buttonOneClick(index); });
+        }
 
         player = GameObject.FindGameObjectWithTag("Player");
         
@@ -46,7 +45,8 @@ public class InventoryUIUpdate : MonoBehaviour
             if(inventory[i])
             {
                 buttons[i].GetComponent<Button>().enabled = true;
-                buttons[i].GetComponent<Image>().sprite = inventory[i].GetComponent<MatChange>().uiPortrait;
+                //buttons[i].GetComponent<Image>().sprite = inventory[i].GetComponent<MatChange>().uiPortrait;
+                buttons[i].transform.GetChild(0).GetComponent<Image>().sprite = inventory[i].GetComponent<MatChange>().uiPortrait;
             }
         }
     }
