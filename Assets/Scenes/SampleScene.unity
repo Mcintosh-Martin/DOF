@@ -3029,6 +3029,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotatableVersion: {fileID: 1456434561}
   uiPortrait: {fileID: 21300000, guid: c4a944113e5816842bdd2fe14c85c8ac, type: 3}
+  uiText: Sphere
 --- !u!135 &1085651609
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3260,6 +3261,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotatableVersion: {fileID: 128268678}
   uiPortrait: {fileID: 21300000, guid: 4189fa32266a51343878e48d112d5385, type: 3}
+  uiText: Tube
 --- !u!136 &1223488983
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4415,6 +4417,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotatableVersion: {fileID: 208435231}
   uiPortrait: {fileID: 21300000, guid: edbb3a8cf53a3f447a3b4e54a731262b, type: 3}
+  uiText: Cube
 --- !u!65 &1596202928
 BoxCollider:
   m_ObjectHideFlags: 0

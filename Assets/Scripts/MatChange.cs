@@ -10,6 +10,7 @@ public class MatChange : MonoBehaviour
     private float targetTime = 0.05f;
     public GameObject rotatableVersion;
     public Sprite uiPortrait;
+    public string uiText;
 
     // Start is called before the first frame update
     void Start()

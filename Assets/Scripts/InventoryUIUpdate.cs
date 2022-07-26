@@ -47,6 +47,7 @@ public class InventoryUIUpdate : MonoBehaviour
                 buttons[i].GetComponent<Button>().enabled = true;
                 //buttons[i].GetComponent<Image>().sprite = inventory[i].GetComponent<MatChange>().uiPortrait;
                 buttons[i].transform.GetChild(0).GetComponent<Image>().sprite = inventory[i].GetComponent<MatChange>().uiPortrait;
+                buttons[i].transform.GetChild(1).GetComponent<Text>().text = inventory[i].GetComponent<MatChange>().uiText;
             }
         }
     }
