@@ -42,7 +42,7 @@ public class playerControl : MonoBehaviour
 
         text.enabled = false;
 
-        inventory = new GameObject[3];
+        inventory = new GameObject[8];
 
         //Disable character controller collider
         control.detectCollisions = false;
