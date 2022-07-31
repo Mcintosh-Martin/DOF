@@ -20,7 +20,7 @@ public class playerControl : MonoBehaviour
     //UI
     public Text text;
     public Canvas RenderText;
-    public bool hooverdSpecial = false;
+    public bool hoverdSpecial = false;
     public bool clickedSpecial = false;
     //public Canvas TestCanvas;
     public Canvas invCanvas;
@@ -31,6 +31,10 @@ public class playerControl : MonoBehaviour
     //All itens within Player inventory
     public GameObject[] inventory;
     public int curInvItem = 0;
+
+    //Access Keypad
+    private bool hoveredKeypad = false;
+    private bool usingKeypad = false;
 
 
     // Start is called before the first frame update
@@ -88,7 +92,7 @@ public class playerControl : MonoBehaviour
 
         Debug.DrawRay(ray.origin, ray.direction * 10, Color.red);
 
-        if (Physics.Raycast(ray, out hit, 2.5f))
+        if (Physics.Raycast(ray, out hit, 2.5f) && !usingKeypad)
         {
             Transform objectHit = hit.transform;
 
@@ -102,13 +106,19 @@ public class playerControl : MonoBehaviour
                     interactableGameObject.GetComponent<Outline>().OutlineWidth = 6;
                     interactableGameObject.GetComponent<MatChange>().switchm();
                     text.enabled = true;
-                    hooverdSpecial = true;
+                    hoverdSpecial = true;
+                }
+                else if (hit.collider.CompareTag("Keypad"))
+                {
+                    hoveredKeypad = true;
+                    interactableGameObject = hit.collider.gameObject;
+                    //Debug.Log("keypad");
                 }
                 else
                 {
                     interactableGameObject = null;
                     text.enabled = false;
-                    hooverdSpecial = false;
+                    hoverdSpecial = false;
                 }
 
                 //Debug.Log("did hit");
@@ -123,7 +133,7 @@ public class playerControl : MonoBehaviour
     //Handle the cameras rotation baseed on mouse postition
     void CameraMove()
     {
-        if(!clickedSpecial && !invCanvas.enabled)
+        if(!clickedSpecial && !invCanvas.enabled && !usingKeypad)
         { 
             // mouse look at
             curRot.x += Input.GetAxis("Mouse X") * sensitivity;
@@ -150,7 +160,7 @@ public class playerControl : MonoBehaviour
         Vector3 lft = transform.rotation * Vector3.left;
         Vector3 rht = transform.rotation * Vector3.right;
 
-        if (!clickedSpecial)
+        if (!clickedSpecial && !usingKeypad)
         {
             //Sprint
             if (Input.GetKey(KeyCode.LeftShift))
@@ -176,10 +186,28 @@ public class playerControl : MonoBehaviour
 
     private void UIIput()
     {
-        if (Input.GetKey(KeyCode.E) && hooverdSpecial)
+        if (Input.GetKey(KeyCode.E) && hoverdSpecial)
         {
             clickedSpecial = true;
-            hooverdSpecial = false;
+            hoverdSpecial = false;
+        }
+
+        if (Input.GetKey(KeyCode.E) && hoveredKeypad)
+        {
+            usingKeypad = true;
+            hoveredKeypad = false;
+            Debug.Log("Clicked Keypad");
+
+            Camera.main.enabled = false;
+
+            //text.enabled = false;
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+
+            interactableGameObject.GetComponent<KeyPadController>().activate(true);
+
+            //RenderText.enabled = true;
+            //RenderText.enabled = true;
         }
 
         //RenderText.active;
