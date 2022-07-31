@@ -20,6 +20,9 @@ public class KeyPadController : MonoBehaviour
 
     private float timer = 0;
 
+    //Key Continer
+    public GameObject continer;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -71,6 +74,8 @@ public class KeyPadController : MonoBehaviour
                 {                 
                     comboResults = 2;
                     transform.GetChild(9).GetComponent<Renderer>().material.color = new Color(0, 1, 0);
+
+                    continer.transform.GetChild(0).gameObject.SetActive(false);
                 }
                 else
                 {
