@@ -8,12 +8,16 @@ public class KeyPadController : MonoBehaviour
 
     private int[] enteredNum;
     private int enteredIndex = 0;
+
     private string enteredString = "";
     private string correctString = "1234";
+    
+    //RenderTexture Text
     public Text displayText;
-    public Material textMaterial;
-    private bool wrongCombo = false;
-    private bool rightCombo = false;
+
+    //0 == not assessed, 1 == Wrong, 2 == Correct
+    private int comboResults = 0;
+
     private float timer = 0;
 
     // Start is called before the first frame update
@@ -22,15 +26,13 @@ public class KeyPadController : MonoBehaviour
         for(int i = 0; i < 9; i++)
         {
             transform.GetChild(i).gameObject.AddComponent<KeyPadButton>();
-            transform.GetChild(i).GetComponent<KeyPadButton>().buttonNum = i + 1;
+            transform.GetChild(i).GetComponent<KeyPadButton>().SetButtonNum(i + 1);
+            transform.GetChild(i).GetComponent<BoxCollider>().enabled = false;
         }
 
         enteredNum = new int[4];
 
-        for (int i = 0; i < 4; i++)
-            enteredNum[i] = 0;
-
-        displayText.text = "";
+        ClearDisplay();
     }
 
     public void activate(bool active)
@@ -38,16 +40,26 @@ public class KeyPadController : MonoBehaviour
         if (active)
         {
             GetComponent<BoxCollider>().enabled = false;
+
+            for (int i = 0; i < 9; i++)
+                transform.GetChild(i).GetComponent<BoxCollider>().enabled = true;
+
+            transform.GetChild(11).GetComponent<Camera>().enabled = true;
         }
         else
         {
+            GetComponent<BoxCollider>().enabled = true;
 
+            for (int i = 0; i < 9; i++)
+                transform.GetChild(i).GetComponent<BoxCollider>().enabled = false;
+
+            transform.GetChild(11).GetComponent<Camera>().enabled = false;
         }    
     }
 
     public void addNum(int number)
     {
-        if(!rightCombo && !wrongCombo)
+        if(comboResults == 0)
         {
             enteredNum[enteredIndex] = number;
 
@@ -56,13 +68,13 @@ public class KeyPadController : MonoBehaviour
             if (enteredIndex == 3)
             {
                 if (enteredString == correctString)
-                {
-                    rightCombo = true;
+                {                 
+                    comboResults = 2;
                     transform.GetChild(9).GetComponent<Renderer>().material.color = new Color(0, 1, 0);
                 }
                 else
                 {
-                    wrongCombo = true;
+                    comboResults = 1;
                     transform.GetChild(9).GetComponent<Renderer>().material.color = new Color(1, 0, 0);
                     timer = 0;
                 }
@@ -80,27 +92,34 @@ public class KeyPadController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        if(wrongCombo)
+        if(comboResults == 1)
         {
             timer += Time.deltaTime;
             Debug.Log(timer);
 
             if(timer >= 1.25)
             {
-                for (int i = 0; i < 4; i++)
-                    enteredNum[i] = 0;
-
-                enteredIndex = 0;
-                enteredString = "";
-
-                Debug.Log(enteredString);
-                displayText.text = enteredString;
+                ClearDisplay();
 
                 transform.GetChild(9).GetComponent<Renderer>().material.color = new Color(1, 1, 1);
 
-                wrongCombo = false;
+                comboResults = 0;
             }
         }
+        else
+            if(Input.GetMouseButton(1))
+                ClearDisplay();           
+    }
+
+    private void ClearDisplay()
+    {
+        for (int i = 0; i < 4; i++)
+            enteredNum[i] = 0;
+
+        enteredIndex = 0;
+        enteredString = "";
+
+        //Debug.Log(enteredString);
+        displayText.text = enteredString;
     }
 }

@@ -102,7 +102,6 @@ public class playerControl : MonoBehaviour
                 if (hit.collider.CompareTag("Special"))
                 {
                     interactableGameObject = hit.collider.gameObject;
-                    //Debug.Log($"s{interactableGameObject}");
                     interactableGameObject.GetComponent<Outline>().OutlineWidth = 6;
                     interactableGameObject.GetComponent<MatChange>().switchm();
                     text.enabled = true;
@@ -112,13 +111,13 @@ public class playerControl : MonoBehaviour
                 {
                     hoveredKeypad = true;
                     interactableGameObject = hit.collider.gameObject;
-                    //Debug.Log("keypad");
                 }
                 else
                 {
                     interactableGameObject = null;
                     text.enabled = false;
                     hoverdSpecial = false;
+                    hoveredKeypad = false;
                 }
 
                 //Debug.Log("did hit");
@@ -192,22 +191,18 @@ public class playerControl : MonoBehaviour
             hoverdSpecial = false;
         }
 
+        //Handle the open of keypad
         if (Input.GetKey(KeyCode.E) && hoveredKeypad)
         {
             usingKeypad = true;
             hoveredKeypad = false;
-            Debug.Log("Clicked Keypad");
 
             Camera.main.enabled = false;
 
-            //text.enabled = false;
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
 
             interactableGameObject.GetComponent<KeyPadController>().activate(true);
-
-            //RenderText.enabled = true;
-            //RenderText.enabled = true;
         }
 
         //RenderText.active;
@@ -226,6 +221,19 @@ public class playerControl : MonoBehaviour
             }
 
             RenderText.enabled = false;
+        }
+
+        //Handle the Exit of keypad
+        if (Input.GetKey(KeyCode.Tab) && usingKeypad)
+        {
+            usingKeypad = false;
+
+            transform.GetChild(0).GetComponent<Camera>().enabled = true;
+
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+
+            interactableGameObject.GetComponent<KeyPadController>().activate(false);
         }
 
         if (Input.GetKey(KeyCode.G) && clickedSpecial)
