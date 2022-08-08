@@ -58,18 +58,13 @@ public class playerControl : MonoBehaviour
         grounded = control.isGrounded;
 
         CameraMove();
-
-        if (clickedSpecial)
-            MoveItem();
-
         UIIput();
+        PlayerMovement();
     }
 
     private void FixedUpdate()
     {
-        PlayerMovement();
         FireRay();
-        //UIIput();
     }
 
     //Pass item hit by raycast to inventory
@@ -99,7 +94,7 @@ public class playerControl : MonoBehaviour
             if (hit.collider != null)
             {
 
-                if (hit.collider.CompareTag("Special"))
+                if (hit.collider.CompareTag("Special") && !clickedSpecial)
                 {
                     interactableGameObject = hit.collider.gameObject;
                     interactableGameObject.GetComponent<Outline>().OutlineWidth = 6;
@@ -114,7 +109,7 @@ public class playerControl : MonoBehaviour
                 }
                 else
                 {
-                    interactableGameObject = null;
+                    //interactableGameObject = null;
                     text.enabled = false;
                     hoverdSpecial = false;
                     hoveredKeypad = false;
@@ -124,8 +119,7 @@ public class playerControl : MonoBehaviour
             }
 
 
-            Debug.Log($"Found: {hit.transform.name}");
-            // Do something with the object that was hit by the raycast.
+            //Debug.Log($"Found: {hit.transform.name}");
         }
     }
 
@@ -144,7 +138,7 @@ public class playerControl : MonoBehaviour
             //mimic cameras rotation to gameobject rotation
             transform.rotation = Quaternion.Euler(0, curRot.x, 0);
 
-            Cursor.lockState = CursorLockMode.Locked;
+            LockCursor(true);
         }
     }
 
@@ -185,55 +179,62 @@ public class playerControl : MonoBehaviour
 
     private void UIIput()
     {
-        if (Input.GetKey(KeyCode.E) && hoverdSpecial)
+        if(Input.GetKey(KeyCode.E))
         {
-            clickedSpecial = true;
-            hoverdSpecial = false;
+            //Handle opening the rotating object
+            if (hoverdSpecial)
+            {
+                clickedSpecial = true;
+                hoverdSpecial = false;
+
+                MoveItem();
+            }
+
+            //Handle the open of keypad
+            if (hoveredKeypad)
+            {
+                usingKeypad = true;
+                hoveredKeypad = false;
+
+                Camera.main.enabled = false;
+
+                LockCursor(false);
+
+                interactableGameObject.GetComponent<KeyPadController>().activate(true);
+            }
         }
-
-        //Handle the open of keypad
-        if (Input.GetKey(KeyCode.E) && hoveredKeypad)
-        {
-            usingKeypad = true;
-            hoveredKeypad = false;
-
-            Camera.main.enabled = false;
-
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-
-            interactableGameObject.GetComponent<KeyPadController>().activate(true);
-        }
+        
 
         //RenderText.active;
-
-        if (Input.GetKey(KeyCode.Tab) && RenderText.enabled)
+        if(Input.GetKey(KeyCode.Tab))
         {
-            if(curInvItem != 0)
+            if (RenderText.enabled)
             {
-                inventory[curInvItem - 1].gameObject.GetComponent<MatChange>().toggleRotate(false);
-                invCanvas.transform.GetChild(1).GetComponent<InventoryUIUpdate>().Assign();                
+                if(curInvItem != 0)
+                {
+                    inventory[curInvItem - 1].gameObject.GetComponent<MatChange>().toggleRotate(false);
+                    invCanvas.transform.GetChild(1).GetComponent<InventoryUIUpdate>().Assign();                
+                }
+                else
+                {
+                    interactableGameObject.gameObject.GetComponent<MatChange>().toggleRotate(false);
+                    clickedSpecial = false;             
+                }
+
+                RenderText.enabled = false;
             }
-            else
+
+            //Handle the Exit of keypad
+            if (usingKeypad)
             {
-                interactableGameObject.gameObject.GetComponent<MatChange>().toggleRotate(false);
-                clickedSpecial = false;             
+                usingKeypad = false;
+
+                transform.GetChild(0).GetComponent<Camera>().enabled = true;
+
+                LockCursor(true);
+
+                interactableGameObject.GetComponent<KeyPadController>().activate(false);
             }
-
-            RenderText.enabled = false;
-        }
-
-        //Handle the Exit of keypad
-        if (Input.GetKey(KeyCode.Tab) && usingKeypad)
-        {
-            usingKeypad = false;
-
-            transform.GetChild(0).GetComponent<Camera>().enabled = true;
-
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-
-            interactableGameObject.GetComponent<KeyPadController>().activate(false);
         }
 
         if (Input.GetKey(KeyCode.G) && clickedSpecial)
@@ -252,26 +253,30 @@ public class playerControl : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.I))
         {
-            //invCanvas.enabled = true;
             if (!invCanvas.enabled)
             {
                 invCanvas.transform.GetChild(1).GetComponent<InventoryUIUpdate>().Assign();
 
                 invCanvas.enabled = true;
-                Cursor.visible = true;
-                Cursor.lockState = CursorLockMode.None;
+                LockCursor(false);
             }
             else
             {
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < inventory.Length; i++)
                 {
                     if (inventory[i])
                         inventory[i].gameObject.GetComponent<MatChange>().toggleRotate(false);
                 }
 
+                if (curInvItem != 0)
+                {
+                    inventory[curInvItem - 1].gameObject.GetComponent<MatChange>().toggleRotate(false);
+                    invCanvas.transform.GetChild(1).GetComponent<InventoryUIUpdate>().Assign();
+                    RenderText.enabled = false;
+                }
+
                 invCanvas.enabled = false;
-                Cursor.visible = false;
-                Cursor.lockState = CursorLockMode.Locked;
+                LockCursor(true);
             }
         }
     }
@@ -287,10 +292,7 @@ public class playerControl : MonoBehaviour
         interactableGameObject.gameObject.GetComponent<MatChange>().toggleRotate(true);       
         
         text.enabled = false;
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-
-        //RenderText.enabled = true;
+        LockCursor(false);
         RenderText.enabled = true;
     }
 
@@ -302,24 +304,27 @@ public class playerControl : MonoBehaviour
             inventory[index].GetComponent<MatChange>().toggleRotate(true);
 
             text.enabled = false;
-            //Cursor.visible = true;
-            //Cursor.lockState = CursorLockMode.None;
 
-            //RenderText.enabled = true;
             RenderText.enabled = true;
-
-
         }
         else
         {
             inventory[index].GetComponent<MatChange>().toggleRotate(false);
 
             text.enabled = true;
-            //Cursor.visible = false;
-            //Cursor.lockState = CursorLockMode.Locked;
 
             RenderText.enabled = false;
             curInvItem = 0;
         }
+    }
+
+    private void LockCursor(bool active)
+    {
+        Cursor.visible = !active;
+
+        if(!active)
+            Cursor.lockState = CursorLockMode.None;
+        else
+            Cursor.lockState = CursorLockMode.Locked;
     }
 }
