@@ -37,6 +37,10 @@ public class playerControl : MonoBehaviour
     private bool usingKeypad = false;
 
 
+    //Access Grid Puzzle
+    private bool hoveredGrid = false;
+    private bool usingGrid = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -107,6 +111,12 @@ public class playerControl : MonoBehaviour
                     hoveredKeypad = true;
                     interactableGameObject = hit.collider.gameObject;
                 }
+                else if (hit.collider.CompareTag("Grid"))
+                {
+                    hoveredGrid = true;
+                    interactableGameObject = hit.collider.gameObject;
+                   // Debug.Log("Grid Puzzle");
+                }
                 else
                 {
                     //interactableGameObject = null;
@@ -126,7 +136,7 @@ public class playerControl : MonoBehaviour
     //Handle the cameras rotation baseed on mouse postition
     void CameraMove()
     {
-        if(!clickedSpecial && !invCanvas.enabled && !usingKeypad)
+        if(!clickedSpecial && !invCanvas.enabled && !usingKeypad && !usingGrid)
         { 
             // mouse look at
             curRot.x += Input.GetAxis("Mouse X") * sensitivity;
@@ -201,6 +211,17 @@ public class playerControl : MonoBehaviour
                 LockCursor(false);
 
                 interactableGameObject.GetComponent<KeyPadController>().activate(true);
+            }
+
+            if(hoveredGrid)
+            {
+                usingGrid = true;
+                hoveredGrid = false;
+
+                Camera.main.enabled = false;
+                LockCursor(false);
+
+                interactableGameObject.GetComponent<GridPuzzleController>().activate(true);
             }
         }
         
@@ -318,6 +339,7 @@ public class playerControl : MonoBehaviour
         }
     }
 
+    //False = visable and Movable //True = Invisable and Nonmovable
     private void LockCursor(bool active)
     {
         Cursor.visible = !active;
