@@ -5,11 +5,14 @@ using UnityEngine;
 public class GridPuzzleController : MonoBehaviour
 {
     public int[,] currentGrid;
-    private int buttonAmount = 4;
+    private int buttonAmount = 9;
     public int[] randOrder;
     public Material[] matList;
     public int[] selectedGrid = new int[2];
     public int[] selectedMatRefs = new int[2];
+    public int[] selectedRots = new int[2];
+    public bool orderCorrect = false;
+    public bool rotationCorrect = false;
 
     // Start is called before the first frame update
     void Start()
@@ -19,6 +22,7 @@ public class GridPuzzleController : MonoBehaviour
         {
             selectedGrid[i] = 99;
             selectedMatRefs[i] = 99;
+            selectedRots[i] = 99;
         }   
 
         randOrder = new int[buttonAmount];
@@ -50,9 +54,12 @@ public class GridPuzzleController : MonoBehaviour
         for (int i = 0; i < buttonAmount; i++)
         {
             transform.GetChild(i).gameObject.AddComponent<GridPuzzlePiece>();
-           // transform.GetChild(i).gameObject.AddComponent<Outline>();
             transform.GetChild(i).gameObject.GetComponent<GridPuzzlePiece>().matNum = randOrder[i];
             transform.GetChild(i).gameObject.GetComponent<GridPuzzlePiece>().pieceNum = i;
+
+            transform.GetChild(i).gameObject.GetComponent<GridPuzzlePiece>().rotation = Random.Range(0,4);
+            transform.GetChild(i).gameObject.GetComponent<GridPuzzlePiece>().Rotate();
+
             transform.GetChild(i).gameObject.GetComponent<Renderer>().material = matList[randOrder[i]];
         }
     }
@@ -70,68 +77,92 @@ public class GridPuzzleController : MonoBehaviour
             GetComponent<BoxCollider>().enabled = false;
 
             for (int i = 0; i < buttonAmount; i++)
+            {
                 transform.GetChild(i).GetComponent<BoxCollider>().enabled = true;
+                transform.GetChild(i).gameObject.GetComponent<GridPuzzlePiece>().enabled = true;
+            }
 
-            transform.GetChild(4).GetComponent<Camera>().enabled = true;
+            transform.GetChild(9).GetComponent<Camera>().enabled = true;
         }
         else
         {
             GetComponent<BoxCollider>().enabled = true;
 
             for (int i = 0; i < buttonAmount; i++)
+            {
                 transform.GetChild(i).GetComponent<BoxCollider>().enabled = false;
+                transform.GetChild(i).gameObject.GetComponent<GridPuzzlePiece>().enabled = false;
+            }
 
-            transform.GetChild(4).GetComponent<Camera>().enabled = false;
+            transform.GetChild(9).GetComponent<Camera>().enabled = false;
         }
 
     }
+    public void switchPiece()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            selectedGrid[i] = 99;
+            selectedMatRefs[i] = 99;
+            selectedRots[i] = 99;
+        }
+    }
 
     //If SelectetPiece == 99 then its empty
-    public void switchPiece(int peiceNum, int matRef, bool clear)
+    public void switchPiece(int peiceNum, int matRef,int rot)
     {
-        if(!clear)
-        {
-            for (int i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
+            if (selectedGrid[i] == 99)
             {
-                if (selectedGrid[i] == 99)
+                selectedGrid[i] = peiceNum;
+                selectedMatRefs[i] = matRef;
+                selectedRots[i] = rot;
+                break;
+            }
+
+        if (selectedGrid[1] != 99)
+        {
+            swap(0, 1);
+            swap(1, 0);
+
+            switchPiece();
+
+            for (int i = 0; i < randOrder.Length; i++)
+            {
+                if (randOrder[i] != i)
+                    break;
+                else if (i == 8 && randOrder[(randOrder.Length - 1)] == i)
                 {
-                    selectedGrid[i] = peiceNum;
-                    selectedMatRefs[i] = matRef;
+                    Debug.Log("Order Match check obj");
+                    orderCorrect = true;
+
+                    RotationalCheckCorrect();
+                }
+            }
+        }
+    }
+
+    private void swap(int first, int second)
+    {
+        randOrder[selectedGrid[first]] = selectedMatRefs[second];
+        transform.GetChild(selectedGrid[first]).gameObject.GetComponent<Renderer>().material = matList[selectedMatRefs[second]];
+        transform.GetChild(selectedGrid[first]).gameObject.GetComponent<GridPuzzlePiece>().swapAssign(selectedRots[second], selectedMatRefs[second]);
+    }
+    
+    public void RotationalCheckCorrect()
+    {
+        if(orderCorrect)
+            for(int i = 0; i < randOrder.Length; i++)
+            {
+                if(transform.GetChild(i).GetComponent<GridPuzzlePiece>().rotation != 0)
+                {
                     break;
                 }
-
-            }
-
-            if (selectedGrid[1] != 99)
-            {
-                randOrder[selectedGrid[0]] = selectedMatRefs[1];
-                randOrder[selectedGrid[1]] = selectedMatRefs[0];
-
-                transform.GetChild(selectedGrid[0]).gameObject.GetComponent<Renderer>().material = matList[selectedMatRefs[1]];
-                transform.GetChild(selectedGrid[1]).gameObject.GetComponent<Renderer>().material = matList[selectedMatRefs[0]];
-
-
-                transform.GetChild(selectedGrid[0]).gameObject.GetComponent<GridPuzzlePiece>().matNum = selectedMatRefs[1];
-                transform.GetChild(selectedGrid[1]).gameObject.GetComponent<GridPuzzlePiece>().matNum = selectedMatRefs[0];
-
-                transform.GetChild(selectedGrid[0]).gameObject.GetComponent<GridPuzzlePiece>().clicked = false;
-                transform.GetChild(selectedGrid[1]).gameObject.GetComponent<GridPuzzlePiece>().clicked = false;
-
-                for (int i = 0; i < 2; i++)
+                else if (i == 8 && transform.GetChild(randOrder.Length - 1).GetComponent<GridPuzzlePiece>().rotation == 0)
                 {
-                    selectedGrid[i] = 99;
-                    selectedMatRefs[i] = 99;
+                    rotationCorrect = true;
+                    Debug.Log("Rot Match check obj");
                 }
             }
-        }
-        else
-        {
-            for (int i = 0; i < 2; i++)
-            {
-                selectedGrid[i] = 99;
-                selectedMatRefs[i] = 99;
-            }
-        }
-        
     }
 }

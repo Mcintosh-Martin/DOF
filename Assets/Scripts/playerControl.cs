@@ -163,7 +163,7 @@ public class playerControl : MonoBehaviour
         Vector3 lft = transform.rotation * Vector3.left;
         Vector3 rht = transform.rotation * Vector3.right;
 
-        if (!clickedSpecial && !usingKeypad)
+        if (!clickedSpecial && !usingKeypad && !usingGrid)
         {
             //Sprint
             if (Input.GetKey(KeyCode.LeftShift))
@@ -255,6 +255,18 @@ public class playerControl : MonoBehaviour
                 LockCursor(true);
 
                 interactableGameObject.GetComponent<KeyPadController>().activate(false);
+            }
+
+            //Handle the Exit of keypad
+            if (usingGrid)
+            {
+                usingGrid = false;
+
+                transform.GetChild(0).GetComponent<Camera>().enabled = true;
+
+                LockCursor(true);
+
+                interactableGameObject.GetComponent<GridPuzzleController>().activate(false);
             }
         }
 
