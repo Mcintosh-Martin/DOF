@@ -46,7 +46,7 @@ public class GridPuzzleController : MonoBehaviour
                 if(!breakout)
                     match = true;  
             }
-            Debug.Log(randOrder[i]);
+            //Debug.Log(randOrder[i]);
         }
 
         //currentGrid = new int[2, 2];

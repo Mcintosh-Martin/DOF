@@ -8,6 +8,9 @@ TagManager:
   - Keypad
   - Door
   - Grid
+  - LightPuzzle
+  - Bulb
+  - LampBase
   layers:
   - Default
   - TransparentFX

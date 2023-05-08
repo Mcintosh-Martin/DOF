@@ -7,12 +7,14 @@ public class playerControl : MonoBehaviour
 {
     //Character Controls
     private CharacterController control;
-    public float movementSpeed = 2.0f;
+    public float runSpeed = 8.0f;
+    public float walkSpeed = 4.0f;
+    public float movementSpeed = 4.0f;
     public bool grounded;
-    private Rigidbody rigidBody;
+    //private Rigidbody rigidBody;
    
     //Camera controls
-    private const float sensitivity = 10f;
+    public float sensitivity = 10f;
     private const float maxYAngle = 80f;
     private Camera mycam;
     private Vector2 curRot;
@@ -20,32 +22,39 @@ public class playerControl : MonoBehaviour
     //UI
     public Text text;
     public Canvas RenderText;
-    public bool hoverdSpecial = false;
-    public bool clickedSpecial = false;
     //public Canvas TestCanvas;
     public Canvas invCanvas;
 
     //Item that is active in scene thats being interacted with
-    private GameObject interactableGameObject;
+    public GameObject interactableGameObject;
 
     //All itens within Player inventory
     public GameObject[] inventory;
     public int curInvItem = 0;
 
     //Access Keypad
-    private bool hoveredKeypad = false;
-    private bool usingKeypad = false;
-
 
     //Access Grid Puzzle
-    private bool hoveredGrid = false;
-    private bool usingGrid = false;
+
+    //Access Light Puzzle
+
+    //Access light bulb
+
+    //Access light bulb
+    //private bool usingLightBase = false;
+
+    //Stores the currently Hovered item. Special refers to items that are simply rotatable
+    enum CurrentlyHovered { None, Special, Keypad, Grid, LightPuzzle, LightBulb, LampBase};
+    CurrentlyHovered curHovered = CurrentlyHovered.None;
+
+    public enum CurrentlyUsing { None, Special, Keypad, Grid, LightPuzzle, LightBulb, usingLampBase}
+    public CurrentlyUsing curUsing = CurrentlyUsing.None;
 
     // Start is called before the first frame update
     void Start()
     {
         control = gameObject.GetComponent<CharacterController>();
-        rigidBody = gameObject.GetComponent<Rigidbody>();
+       // rigidBody = gameObject.GetComponent<Rigidbody>();
         mycam = Camera.main;
 
         text.enabled = false;
@@ -59,26 +68,24 @@ public class playerControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        grounded = control.isGrounded;
-
-        CameraMove();
         UIIput();
-        PlayerMovement();
+        CameraMove();
     }
 
     private void FixedUpdate()
     {
+        PlayerMovement();
         FireRay();
     }
 
     //Pass item hit by raycast to inventory
-    void addToInventory()
+    void addToInventory(GameObject ItemToStore)
     {
         for (int i = 0; i < inventory.Length; i++)
         {
             if (!inventory[i]) 
             {
-                inventory[i] = interactableGameObject;
+                inventory[i] = ItemToStore;
                 break;
             }
         }
@@ -91,52 +98,80 @@ public class playerControl : MonoBehaviour
 
         Debug.DrawRay(ray.origin, ray.direction * 10, Color.red);
 
-        if (Physics.Raycast(ray, out hit, 2.5f) && !usingKeypad)
+        if (Physics.Raycast(ray, out hit, 2.5f) && curUsing == CurrentlyUsing.None)
         {
-            Transform objectHit = hit.transform;
-
             if (hit.collider != null)
             {
+                switch(hit.collider.tag)
+                {                    
+                    case "Special":
+                        if (curUsing == CurrentlyUsing.None)
+                        {
+                            interactableGameObject = hit.collider.gameObject;
+                            interactableGameObject.GetComponent<Outline>().OutlineWidth = 6;
+                            interactableGameObject.GetComponent<MatChange>().switchm();
+                            text.enabled = true;
+                            curHovered = CurrentlyHovered.Special;
+                        }
+                        break;
+                    case "Keypad":                        
+                        curHovered = CurrentlyHovered.Keypad;
+                        interactableGameObject = hit.collider.gameObject;                        
+                        break;
+                    case "Grid":                        
+                        curHovered = CurrentlyHovered.Grid;
+                        interactableGameObject = hit.collider.gameObject;                            
+                        break;
+                    case "LightPuzzle":
+                        curHovered = CurrentlyHovered.LightPuzzle;
+                        interactableGameObject = hit.collider.gameObject;
+                        interactableGameObject.GetComponent<FlashLightPuzzleController>().activated = true;                        
+                        break;
 
-                if (hit.collider.CompareTag("Special") && !clickedSpecial)
-                {
-                    interactableGameObject = hit.collider.gameObject;
-                    interactableGameObject.GetComponent<Outline>().OutlineWidth = 6;
-                    interactableGameObject.GetComponent<MatChange>().switchm();
-                    text.enabled = true;
-                    hoverdSpecial = true;
-                }
-                else if (hit.collider.CompareTag("Keypad"))
-                {
-                    hoveredKeypad = true;
-                    interactableGameObject = hit.collider.gameObject;
-                }
-                else if (hit.collider.CompareTag("Grid"))
-                {
-                    hoveredGrid = true;
-                    interactableGameObject = hit.collider.gameObject;
-                   // Debug.Log("Grid Puzzle");
-                }
-                else
-                {
-                    //interactableGameObject = null;
-                    text.enabled = false;
-                    hoverdSpecial = false;
-                    hoveredKeypad = false;
-                }
+                    case "Bulb":                        
+                        interactableGameObject = hit.collider.gameObject;
+                        interactableGameObject.GetComponent<Outline>().OutlineWidth = 6;
+                        interactableGameObject.GetComponent<BulbControl>().SetOutlineTimer();
+                        text.enabled = true;
 
-                //Debug.Log("did hit");
+                        curHovered = CurrentlyHovered.LightBulb;
+                        interactableGameObject = hit.collider.gameObject;
+                        break;
+
+                    case "LampBase":
+                        curHovered = CurrentlyHovered.LampBase;
+                        interactableGameObject = hit.collider.gameObject;
+                        //Debug.Log(hit.collider.tag);
+                        break;
+                        
+                    default:                        
+                        text.enabled = false;
+                        curHovered = CurrentlyHovered.None;
+                        interactableGameObject = null;
+                        break;      
+                }
             }
-
-
-            //Debug.Log($"Found: {hit.transform.name}");
+            else
+            {
+                Debug.Log("not Hitting Anything");
+            }
+        }
+        else
+        {
+            if(interactableGameObject != null && curUsing == CurrentlyUsing.None)
+            {
+                Debug.Log("not hittin");
+                text.enabled = false;
+                curHovered = CurrentlyHovered.None;
+                interactableGameObject = null;
+            }            
         }
     }
 
     //Handle the cameras rotation baseed on mouse postition
     void CameraMove()
     {
-        if(!clickedSpecial && !invCanvas.enabled && !usingKeypad && !usingGrid)
+        if(curUsing == CurrentlyUsing.None && !invCanvas.enabled)
         { 
             // mouse look at
             curRot.x += Input.GetAxis("Mouse X") * sensitivity;
@@ -155,7 +190,12 @@ public class playerControl : MonoBehaviour
     //Handle Player object movement in scene
     void PlayerMovement()
     {
-        Camera mycam = Camera.main;
+        //Handle Gravity of character controller
+        grounded = control.isGrounded;
+        float gravity = 0;
+        if (grounded) { gravity = 0; }
+        else { gravity -= 9.81f * Time.deltaTime; }
+        control.Move(new Vector3(0, gravity, 0));
 
         //Recalculate forward
         Vector3 fwd = transform.rotation * Vector3.forward;
@@ -163,71 +203,112 @@ public class playerControl : MonoBehaviour
         Vector3 lft = transform.rotation * Vector3.left;
         Vector3 rht = transform.rotation * Vector3.right;
 
-        if (!clickedSpecial && !usingKeypad && !usingGrid)
+        //Calculate diagonal vectors 
+        Vector3 FR = Quaternion.Euler(0, 45, 0) * fwd;
+        Vector3 FL = Quaternion.Euler(0, -45, 0) * fwd;
+        Vector3 BR = Quaternion.Euler(0, 135, 0) * fwd;
+        Vector3 BL = Quaternion.Euler(0, -135, 0) * fwd;     
+
+        if (curUsing == CurrentlyUsing.None)
         {
             //Sprint
-            if (Input.GetKey(KeyCode.LeftShift))
-                movementSpeed = 8;
-
-            else
-                movementSpeed = 2;
-            
+            if (Input.GetKey(KeyCode.LeftShift)) { movementSpeed = runSpeed; }
+            else { movementSpeed = walkSpeed; }
+ 
             //WASD movment
             if (Input.GetKey(KeyCode.W))
-                Move(fwd);
+            {
+                if (Input.GetKey(KeyCode.D)) { Move(FR); }                              
+                else if (Input.GetKey(KeyCode.A)) { Move(FL); }
+                else { Move(fwd); }     
+            }
+            else if (Input.GetKey(KeyCode.S))
+            {
+                if (Input.GetKey(KeyCode.D)) { Move(BR); }                                    
+                else if (Input.GetKey(KeyCode.A)) { Move(BL); }                    
+                else { Move(bkw); }                                
+            }
             
-            else if (Input.GetKey(KeyCode.S))            
-                Move(bkw);
-            
-            else if (Input.GetKey(KeyCode.A))            
-                Move(lft);
-            
-            else if (Input.GetKey(KeyCode.D))
-                Move(rht);
+            else if (Input.GetKey(KeyCode.A)) { Move(lft); }                                   
+            else if (Input.GetKey(KeyCode.D)) { Move(rht); }                
         }        
     }
 
     private void UIIput()
     {
-        if(Input.GetKey(KeyCode.E))
+        //Test Setting key Up for toggle light power
+        if(Input.GetKeyDown(KeyCode.B))
         {
-            //Handle opening the rotating object
-            if (hoverdSpecial)
+            if(curHovered == CurrentlyHovered.LampBase)
             {
-                clickedSpecial = true;
-                hoverdSpecial = false;
-
-                MoveItem();
-            }
-
-            //Handle the open of keypad
-            if (hoveredKeypad)
-            {
-                usingKeypad = true;
-                hoveredKeypad = false;
-
-                Camera.main.enabled = false;
-
-                LockCursor(false);
-
-                interactableGameObject.GetComponent<KeyPadController>().activate(true);
-            }
-
-            if(hoveredGrid)
-            {
-                usingGrid = true;
-                hoveredGrid = false;
-
-                Camera.main.enabled = false;
-                LockCursor(false);
-
-                interactableGameObject.GetComponent<GridPuzzleController>().activate(true);
+                interactableGameObject.GetComponent<LampBaseController>().TogglePower();
             }
         }
-        
+        //
+        if(Input.GetKeyDown(KeyCode.E))
+        {
+            switch(curHovered)
+            {
+                //Handle opening the rotating object
+                case CurrentlyHovered.Special:
+                    curUsing = CurrentlyUsing.Special;
+                    curHovered = CurrentlyHovered.None;
+
+                    MoveItem();
+                    break;
+
+                //Handle the open of keypad
+                case CurrentlyHovered.Keypad:
+                    curUsing = CurrentlyUsing.Keypad;
+                    curHovered = CurrentlyHovered.None;
+
+                    Camera.main.enabled = false;
+
+                    LockCursor(false);
+
+                    interactableGameObject.GetComponent<KeyPadController>().activate(true);
+                    break;
+
+                case CurrentlyHovered.Grid:
+                    curUsing = CurrentlyUsing.Grid;
+                    curHovered = CurrentlyHovered.None;
+
+                    Camera.main.enabled = false;
+                    LockCursor(false);
+
+                    interactableGameObject.GetComponent<GridPuzzleController>().activate(true);
+                    break;
+
+                case CurrentlyHovered.LightPuzzle:
+                    curUsing = CurrentlyUsing.LightPuzzle;
+                    curHovered = CurrentlyHovered.None;
+
+                    Camera.main.enabled = false;
+                    LockCursor(false);
+
+                    interactableGameObject.GetComponent<FlashLightPuzzleController>().activate(true);
+                    break;
+
+                case CurrentlyHovered.LightBulb:
+                    curUsing = CurrentlyUsing.LightBulb;
+                    curHovered = CurrentlyHovered.None;
+
+                    interactableGameObject.gameObject.GetComponent<Outline>().OutlineWidth = 0f;
+                    interactableGameObject.GetComponent<BulbControl>().toggleRotate(true);
+                    break;
+
+                case CurrentlyHovered.LampBase:
+                    curUsing = CurrentlyUsing.usingLampBase;
+                    curHovered = CurrentlyHovered.None;
+                    LockCursor(false);
+                    interactableGameObject.GetComponent<LampBaseController>().AddRemoveBulb();
+                    break;
+
+            }
+        }
 
         //RenderText.active;
-        if(Input.GetKey(KeyCode.Tab))
+        if (Input.GetKey(KeyCode.Tab))
         {
             if (RenderText.enabled)
             {
@@ -239,49 +320,94 @@ public class playerControl : MonoBehaviour
                 else
                 {
                     interactableGameObject.gameObject.GetComponent<MatChange>().toggleRotate(false);
-                    clickedSpecial = false;             
+                    curUsing = CurrentlyUsing.None;                    
                 }
 
                 RenderText.enabled = false;
             }
 
-            //Handle the Exit of keypad
-            if (usingKeypad)
+            switch(curUsing)
             {
-                usingKeypad = false;
+                //Handle the Exit of keypad
+                case CurrentlyUsing.Keypad:
+                    curUsing = CurrentlyUsing.None;
 
-                transform.GetChild(0).GetComponent<Camera>().enabled = true;
+                    transform.GetChild(0).GetComponent<Camera>().enabled = true;
 
-                LockCursor(true);
+                    LockCursor(true);
 
-                interactableGameObject.GetComponent<KeyPadController>().activate(false);
-            }
+                    interactableGameObject.GetComponent<KeyPadController>().activate(false);
+                    break;
 
-            //Handle the Exit of keypad
-            if (usingGrid)
-            {
-                usingGrid = false;
+                //Handle the Exit of keypad
+                case CurrentlyUsing.Grid:
+                    curUsing = CurrentlyUsing.None;
 
-                transform.GetChild(0).GetComponent<Camera>().enabled = true;
+                    transform.GetChild(0).GetComponent<Camera>().enabled = true;
 
-                LockCursor(true);
+                    LockCursor(true);
 
-                interactableGameObject.GetComponent<GridPuzzleController>().activate(false);
+                    interactableGameObject.GetComponent<GridPuzzleController>().activate(false);
+                    break;
+
+                //Handle the Exit of light Puzzle
+                case CurrentlyUsing.LightPuzzle:
+                    break;
             }
         }
 
-        if (Input.GetKey(KeyCode.G) && clickedSpecial)
+        //Add the current rotating object to inventory
+        if (Input.GetKey(KeyCode.G) && (curUsing == CurrentlyUsing.Special || curUsing == CurrentlyUsing.LightBulb || curUsing == CurrentlyUsing.usingLampBase))
         {
-            addToInventory();
+            if (curUsing == CurrentlyUsing.Special)
+            {
+                addToInventory(interactableGameObject);
+                Vector3 newLocation = interactableGameObject.transform.position;
+                newLocation.y = -50f;
+                interactableGameObject.transform.position = newLocation;
 
-            interactableGameObject.gameObject.GetComponent<MatChange>().toggleRotate(false);
+                interactableGameObject.gameObject.GetComponent<MatChange>().toggleRotate(false);
+                RenderText.enabled = false;
+                curUsing = CurrentlyUsing.None;
+            }
+            
+            if(curUsing == CurrentlyUsing.LightBulb)
+            {
+                addToInventory(interactableGameObject);
+                Vector3 newLocation = interactableGameObject.transform.position;
+                newLocation.y = -50f;
+                interactableGameObject.transform.position = newLocation;
 
-            Vector3 newLocation = interactableGameObject.transform.position;
-            newLocation.y = -50f;
-            interactableGameObject.transform.position = newLocation;
+                interactableGameObject.gameObject.GetComponent<BulbControl>().toggleRotate(false);
+                curUsing = CurrentlyUsing.None;
+            }
 
-            clickedSpecial = false;
-            RenderText.enabled = false;
+            if(curUsing == CurrentlyUsing.usingLampBase)
+            {
+                //store temp object 
+                GameObject lampBase = GameObject.FindGameObjectWithTag("LampBase");
+
+                //Store object in inventory
+                addToInventory(lampBase.GetComponent<LampBaseController>().lightBulb);
+
+                //Move to unaccessable area
+                Vector3 newLoc = lampBase.GetComponent<LampBaseController>().lightBulb.transform.position;
+                newLoc.y = -50f;
+                lampBase.GetComponent<LampBaseController>().lightBulb.transform.position = newLoc;
+
+                //Clear up Lampbase variables to starting point without a lightbulb
+
+                //Close renderTexture
+                RenderText.enabled = false;
+
+                //Clear up light bulb variables as though has no lampbase
+                lampBase.GetComponent<LampBaseController>().lightBulb.GetComponent<BulbControl>().GetComponent<BoxCollider>().enabled = false;
+
+                //Remove gameobject from Lampbase
+                lampBase.GetComponent<LampBaseController>().lightBulb = null;
+
+                curUsing = CurrentlyUsing.None;
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.I))
@@ -316,7 +442,7 @@ public class playerControl : MonoBehaviour
 
     void Move(Vector3 direction)
     {
-       rigidBody.velocity = direction * (movementSpeed);
+        control.Move(direction * (movementSpeed * Time.deltaTime));
     }
 
     void MoveItem()
@@ -351,8 +477,11 @@ public class playerControl : MonoBehaviour
         }
     }
 
-    //False = visable and Movable //True = Invisable and Nonmovable
-    private void LockCursor(bool active)
+    /// <summary>
+    /// Active = False: Visible and Movable,
+    /// Active = True: Invisible and Non-movable
+    /// </summary>
+    public void LockCursor(bool active)
     {
         Cursor.visible = !active;
 

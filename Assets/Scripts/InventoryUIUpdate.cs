@@ -8,6 +8,8 @@ public class InventoryUIUpdate : MonoBehaviour
     public GameObject[] buttons;
     public GameObject player;
 
+    public Sprite defualtSprite;
+
     private bool buttonPressed = false;
 
     // Start is called before the first frame update
@@ -36,6 +38,15 @@ public class InventoryUIUpdate : MonoBehaviour
 
     public void Assign()
     {
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            buttons[i] = transform.GetChild(i + 1).gameObject;
+            buttons[i].GetComponent<Button>().enabled = false;
+
+            buttons[i].transform.GetChild(0).GetComponent<Image>().sprite = defualtSprite;
+            buttons[i].transform.GetChild(1).GetComponent<Text>().text = "New Text";
+        }
+
         buttonPressed = false;
 
         GameObject[] inventory = player.gameObject.GetComponent<playerControl>().inventory;
@@ -46,8 +57,8 @@ public class InventoryUIUpdate : MonoBehaviour
             {
                 buttons[i].GetComponent<Button>().enabled = true;
                 //buttons[i].GetComponent<Image>().sprite = inventory[i].GetComponent<MatChange>().uiPortrait;
-                buttons[i].transform.GetChild(0).GetComponent<Image>().sprite = inventory[i].GetComponent<MatChange>().uiPortrait;
-                buttons[i].transform.GetChild(1).GetComponent<Text>().text = inventory[i].GetComponent<MatChange>().uiText;
+                buttons[i].transform.GetChild(0).GetComponent<Image>().sprite = inventory[i].GetComponent<UIDetails>().uiPortrait;
+                buttons[i].transform.GetChild(1).GetComponent<Text>().text = inventory[i].GetComponent<UIDetails>().uiText;
             }
         }
     }
