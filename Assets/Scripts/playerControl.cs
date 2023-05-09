@@ -144,7 +144,7 @@ public class playerControl : MonoBehaviour
                         //Debug.Log(hit.collider.tag);
                         break;
                         
-                    default:                        
+                    default:
                         text.enabled = false;
                         curHovered = CurrentlyHovered.None;
                         interactableGameObject = null;

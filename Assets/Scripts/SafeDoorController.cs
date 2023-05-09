@@ -4,15 +4,14 @@ using UnityEngine;
 
 public class SafeDoorController : MonoBehaviour
 {
-    //Tracker bools to indicate current position in open cycle
     enum CurrentState { rest, spinHandle, openDoor }
-    CurrentState curState = CurrentState.spinHandle;
+    CurrentState curState = CurrentState.rest;
 
     //Timer calculated by adding up DeltaTime
     private float timerInSeconds = 0f;
 
     //Spin handle variables
-    private readonly float SPINTIMEINSECONDS = 1.5f; //Set to 1f for when finished testing
+    private readonly float SPINTIMEINSECONDS = 1.5f;
     private readonly float SPINROTATIONSPEED = 2.5f;
 
     //Open Door Variables
