@@ -352,6 +352,13 @@ public class playerControl : MonoBehaviour
 
                 //Handle the Exit of light Puzzle
                 case CurrentlyUsing.LightPuzzle:
+                    curUsing = CurrentlyUsing.None;
+
+                    transform.GetChild(0).GetComponent<Camera>().enabled = true;
+
+                    LockCursor(true);
+
+                    interactableGameObject.GetComponent<FlashLightPuzzleController>().activate(false);
                     break;
             }
         }
@@ -377,6 +384,7 @@ public class playerControl : MonoBehaviour
                 Vector3 newLocation = interactableGameObject.transform.position;
                 newLocation.y = -50f;
                 interactableGameObject.transform.position = newLocation;
+                interactableGameObject.transform.rotation = Quaternion.Euler(-90, 0, 0);
 
                 interactableGameObject.gameObject.GetComponent<BulbControl>().toggleRotate(false);
                 curUsing = CurrentlyUsing.None;

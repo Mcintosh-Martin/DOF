@@ -21,6 +21,8 @@ public class FlashLightPuzzleController : MonoBehaviour
     public bool cutOff = true;
     public bool activated = false;
     public bool completed = false;
+
+    public GameObject safe; 
     //-------------------------------------------------------------PRIVATE START----------------------------------------------------
     private float dt = 1;
     private int index = 0;
@@ -175,6 +177,8 @@ public class FlashLightPuzzleController : MonoBehaviour
     }
     private void DisplayScore()
     {
+        if (score == 3)
+            safe.GetComponent<SafeDoorController>().OpenSafe();
         if (score > 0)
             for (int i = 0; i < score; i++)
                 scoreLights[i].GetComponent<Renderer>().material.EnableKeyword("_EMISSION");

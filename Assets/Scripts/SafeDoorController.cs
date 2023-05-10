@@ -40,7 +40,8 @@ public class SafeDoorController : MonoBehaviour
 
     public void OpenSafe()
     {
-        curState = CurrentState.spinHandle;
+        if(curState == CurrentState.rest)
+            curState = CurrentState.spinHandle;
     }
 
     //Spin door handle for set amount of time
