@@ -31,6 +31,7 @@ public class FlashLight : MonoBehaviour
                 GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
                 countDown = 0;
                 count = false;
+                GetComponentInParent<FlashLightPuzzleController>().ButtonInput(LightNum);
             }
         }
 
@@ -58,17 +59,13 @@ public class FlashLight : MonoBehaviour
     private void OnMouseDown()
     {
         if(GetComponentInParent<FlashLightPuzzleController>().cutOff)
-        {
-            GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
-            GetComponentInParent<FlashLightPuzzleController>().ButtonInput(LightNum);
-        }
+            GetComponent<Renderer>().material.EnableKeyword("_EMISSION");        
     }
 
     private void OnMouseUp()
     {
         if (GetComponentInParent<FlashLightPuzzleController>().cutOff)
             count = true;
-        //GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
     }
 
     public void LightUp(float length)
