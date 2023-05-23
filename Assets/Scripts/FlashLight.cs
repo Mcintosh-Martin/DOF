@@ -12,11 +12,12 @@ public class FlashLight : MonoBehaviour
     private bool turnOn = false;
     private float timeOn = 0f;
 
+    AudioSource audioSource;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -32,6 +33,7 @@ public class FlashLight : MonoBehaviour
                 countDown = 0;
                 count = false;
                 GetComponentInParent<FlashLightPuzzleController>().ButtonInput(LightNum);
+                audioSource.Stop();
             }
         }
 
@@ -45,6 +47,7 @@ public class FlashLight : MonoBehaviour
                 timeOn = 0f;
                 turnOn = false;
                 countDown = 0;
+                audioSource.Stop();
             }
         }
     }
@@ -55,11 +58,15 @@ public class FlashLight : MonoBehaviour
         turnOn = false;
         timeOn = 0f;
         GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
+        audioSource.Stop();
     }
     private void OnMouseDown()
     {
         if(GetComponentInParent<FlashLightPuzzleController>().cutOff)
-            GetComponent<Renderer>().material.EnableKeyword("_EMISSION");        
+        {
+            GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
+            audioSource.Play();
+        }                    
     }
 
     private void OnMouseUp()
@@ -73,5 +80,6 @@ public class FlashLight : MonoBehaviour
         GetComponent<Renderer>().material.EnableKeyword("_EMISSION");
         turnOn = true;
         timeOn = length;
+        audioSource.Play();
     }
 }

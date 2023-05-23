@@ -10,6 +10,13 @@ public class GridPuzzlePiece : MonoBehaviour
 
     public bool clicked = false;
 
+    Vector3 startPosition = new Vector3();
+    Vector3 endPosition = new Vector3();
+
+    float translationTimerInSeconds = 0f;
+
+    bool startTranslation = false;
+
     private GridPuzzleController parentScript;
     // Start is called before the first frame update
     void Start()
@@ -29,9 +36,7 @@ public class GridPuzzlePiece : MonoBehaviour
                     rotation = 0;
 
                 Rotate();
-                parentScript.switchPiece();
-                parentScript.switchPiece(pieceNum, matNum, rotation);
-                parentScript.RotationalCheckCorrect();
+                parentScript.CheckCorrect();
             }
 
             if (Input.GetKeyDown(KeyCode.Q))
@@ -41,9 +46,28 @@ public class GridPuzzlePiece : MonoBehaviour
                     rotation = 3;
 
                 Rotate();
-                parentScript.switchPiece();
-                parentScript.switchPiece(pieceNum, matNum, rotation);
-                parentScript.RotationalCheckCorrect();
+                parentScript.CheckCorrect();
+            }
+        }
+
+        if(startTranslation)
+        {
+            if (translationTimerInSeconds < 1)
+            {
+                translationTimerInSeconds += Time.deltaTime * 1.25f;
+
+                transform.position = Vector3.Lerp(startPosition, endPosition, translationTimerInSeconds);
+
+                if (translationTimerInSeconds >= 1)
+                {
+                    translationTimerInSeconds = 0f;
+                    startPosition = new Vector3();
+                    endPosition = new Vector3();
+
+                    startTranslation = false;
+                    Reset();
+                }
+
             }
         }
     }
@@ -56,22 +80,33 @@ public class GridPuzzlePiece : MonoBehaviour
             {
                 Debug.Log(pieceNum);
                 GetComponent<Renderer>().material.SetColor("_Color", new Color32(255, 255, 130, 255));
-                parentScript.switchPiece(pieceNum, matNum, rotation);
+                
+                
+                transform.localPosition = new Vector3(2, transform.localPosition.y, transform.localPosition.z);
+                parentScript.switchPiece(pieceNum, gameObject);                
             }
             else
             {
                 Debug.Log(pieceNum);
                 GetComponent<Renderer>().material.SetColor("_Color", new Color32(255, 255, 255, 0));
-                parentScript.switchPiece();
+                transform.localPosition = new Vector3(0.39f, transform.localPosition.y, transform.localPosition.z);
+                parentScript.ClearSelectedPieces();
             }
     }
 
-    public void swapAssign(int rot, int mat)
+    public void Reset()
     {
-        rotation = rot;
-        matNum = mat;
         clicked = false;
-        Rotate();
+        transform.localPosition = new Vector3(0.39f, transform.localPosition.y, transform.localPosition.z);
+        GetComponent<Renderer>().material.SetColor("_Color", new Color32(255, 255, 255, 0));
+    }
+
+    public void StartTranslation(Vector3 endPos)
+    {
+        startPosition = transform.position;
+        endPosition = endPos;
+
+        startTranslation = true;
     }
 
     public void Rotate()

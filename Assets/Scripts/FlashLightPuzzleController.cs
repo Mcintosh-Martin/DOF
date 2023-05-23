@@ -22,12 +22,16 @@ public class FlashLightPuzzleController : MonoBehaviour
     public bool activated = false;
     public bool completed = false;
 
-    public GameObject safe; 
+    public GameObject safe;
+
+    AudioSource completeSound;
     //-------------------------------------------------------------PRIVATE START----------------------------------------------------
     private float dt = 1;
     private int index = 0;
     private int enteredIndex = 0;
     private int section = 0;
+
+
     
 
     // Start is called before the first frame update
@@ -47,6 +51,8 @@ public class FlashLightPuzzleController : MonoBehaviour
 
             lightComboEntered[i] = 99;
         }
+
+        completeSound = GetComponent<AudioSource>();
     }
 
     public void activate(bool active)
@@ -107,6 +113,7 @@ public class FlashLightPuzzleController : MonoBehaviour
             {
                 section++;
                 score++;
+                completeSound.Play();
                 if(score == 3){ completed = true; }
             }
             else
