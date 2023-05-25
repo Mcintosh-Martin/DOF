@@ -83,7 +83,7 @@ public class LampBaseController : MonoBehaviour
         lightBulb.GetComponent<Collider>().enabled = false;
 
         //allow player movement and hide cursor
-        player.GetComponent<playerControl>().curUsing = playerControl.CurrentlyUsing.None;
+        player.GetComponent<playerControl>().curUsing = CurrentlyUsing.None;
         player.GetComponent<playerControl>().LockCursor(true);
     }
 

@@ -43,11 +43,8 @@ public class playerControl : MonoBehaviour
     //Access light bulb
     //private bool usingLightBase = false;
 
-    //Stores the currently Hovered item. Special refers to items that are simply rotatable
-    enum CurrentlyHovered { None, Special, Keypad, Grid, LightPuzzle, LightBulb, LampBase};
-    CurrentlyHovered curHovered = CurrentlyHovered.None;
-
-    public enum CurrentlyUsing { None, Special, Keypad, Grid, LightPuzzle, LightBulb, usingLampBase}
+    //Stores the currently Hovered item. Special refers to items that are simply rotatable DEFINED IN USAGEENUMS
+    public CurrentlyHovered curHovered = CurrentlyHovered.None;
     public CurrentlyUsing curUsing = CurrentlyUsing.None;
 
     // Start is called before the first frame update
