@@ -81,7 +81,7 @@ public class UIManager : MonoBehaviour
                 DisplayUsingText(CurrentlyUsing.LightBulb, 1);
                 break;
             case CurrentlyUsing.usingLampBase:
-                DisplayUsingText(CurrentlyUsing.usingLampBase, 2);
+                DisplayUsingText(CurrentlyUsing.usingLampBase, 1);
                 break;
         }
     }

@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\RotateObject.cs" />
     <Compile Include="Assets\Scripts\BulbControl.cs" />
     <Compile Include="Assets\Scripts\KeyPadButton.cs" />
+    <Compile Include="Assets\Scripts\UsageEnum.cs" />
     <Compile Include="Assets\Scripts\LightBaseUI.cs" />
     <Compile Include="Assets\Scripts\UIDetails.cs" />
     <Compile Include="Assets\Scripts\KeyPadController.cs" />
@@ -71,12 +72,10 @@
     <Compile Include="Assets\Scripts\GridPuzzleController.cs" />
     <Compile Include="Assets\Scripts\LampBaseController.cs" />
     <Compile Include="Assets\Scripts\MatChange.cs" />
+    <Compile Include="Assets\Scripts\UIManager.cs" />
     <Compile Include="Assets\Scripts\GridPuzzlePiece.cs" />
     <Compile Include="Assets\Scripts\FlashLight.cs" />
-    <Compile Include="Assets\Scripts\SoundToggleTest.cs" />
     <Compile Include="Assets\Scripts\AlphaText.cs" />
-    <Compile Include="Assets\Scripts\UIManager.cs" />
-    <Compile Include="Assets\Scripts\UsageEnum.cs" />
   </ItemGroup>
   <ItemGroup>
      <None Include="Assets\QuickOutline\Resources\Shaders\OutlineMask.shader" />

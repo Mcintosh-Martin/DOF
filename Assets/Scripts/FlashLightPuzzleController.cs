@@ -4,11 +4,6 @@ using UnityEngine;
 
 public class FlashLightPuzzleController : MonoBehaviour
 {
-    //-------------------------------------------------------------PUBLIC START-----------------------------------------------------
-    //public int[] lightRandComboOne = new int[4];
-    //public int[] lightRandComboTwo = new int[4];
-    //public int[] lightRandComboThree = new int[4];
-    //public int[] curArr;
     public int[,] testArr;
 
     public int[] lightComboEntered = new int[4];
@@ -25,14 +20,11 @@ public class FlashLightPuzzleController : MonoBehaviour
     public GameObject safe;
 
     AudioSource completeSound;
-    //-------------------------------------------------------------PRIVATE START----------------------------------------------------
+
     private float dt = 1;
     private int index = 0;
     private int enteredIndex = 0;
     private int section = 0;
-
-
-    
 
     // Start is called before the first frame update
     void Start()
@@ -68,6 +60,7 @@ public class FlashLightPuzzleController : MonoBehaviour
                 gameLights[i].gameObject.GetComponent<FlashLight>().enabled = true;
             }
 
+            activated = true;
             cutOff = false;
         }
         else
@@ -79,7 +72,11 @@ public class FlashLightPuzzleController : MonoBehaviour
             {
                 gameLights[i].GetComponent<CapsuleCollider>().enabled = false;
                 gameLights[i].gameObject.GetComponent<FlashLight>().enabled = false;
+                gameLights[i].gameObject.GetComponent<FlashLight>().refresh();
             }
+
+            activated = false;
+            index = 0;
         }
     }
 
@@ -92,7 +89,6 @@ public class FlashLightPuzzleController : MonoBehaviour
         DisplayScore();
     }
 
-    //-------------------------------------------------------------PUBLIC START-----------------------------------------------------
     public void ButtonInput(int num)
     {
         lightComboEntered[enteredIndex] = num;
@@ -132,9 +128,7 @@ public class FlashLightPuzzleController : MonoBehaviour
             }
         }
     }
-    //-------------------------------------------------------------PUBLIC END-------------------------------------------------------
 
-    //-------------------------------------------------------------PRIVATE START----------------------------------------------------
     private void SectionLight(/*int section, int[] arr*/)
     {
         if (!cutOff)
@@ -193,5 +187,4 @@ public class FlashLightPuzzleController : MonoBehaviour
             for (int i = 0; i < 3; i++)
                 scoreLights[i].GetComponent<Renderer>().material.DisableKeyword("_EMISSION");
     }
-    //-------------------------------------------------------------PRIVATE END------------------------------------------------------
 }

@@ -121,8 +121,7 @@ public class playerControl : MonoBehaviour
                         break;
                     case "LightPuzzle":
                         curHovered = CurrentlyHovered.LightPuzzle;
-                        interactableGameObject = hit.collider.gameObject;
-                        interactableGameObject.GetComponent<FlashLightPuzzleController>().activated = true;                        
+                        interactableGameObject = hit.collider.gameObject;                 
                         break;
 
                     case "Bulb":                        
@@ -138,7 +137,6 @@ public class playerControl : MonoBehaviour
                     case "LampBase":
                         curHovered = CurrentlyHovered.LampBase;
                         interactableGameObject = hit.collider.gameObject;
-                        //Debug.Log(hit.collider.tag);
                         break;
                         
                     default:
@@ -149,12 +147,9 @@ public class playerControl : MonoBehaviour
                 }
             }
             else
-            {
-                Debug.Log("not Hitting Anything");
-            }
+                Debug.Log("not Hitting Anything");            
         }
         else
-        {
             if(interactableGameObject != null && curUsing == CurrentlyUsing.None)
             {
                 Debug.Log("not hittin");
@@ -162,7 +157,6 @@ public class playerControl : MonoBehaviour
                 curHovered = CurrentlyHovered.None;
                 interactableGameObject = null;
             }            
-        }
     }
 
     //Handle the cameras rotation baseed on mouse postition
@@ -309,16 +303,29 @@ public class playerControl : MonoBehaviour
         {
             if (RenderText.enabled)
             {
-                if(curInvItem != 0)
+                if(curUsing != CurrentlyUsing.usingLampBase)
                 {
-                    inventory[curInvItem - 1].gameObject.GetComponent<MatChange>().toggleRotate(false);
-                    invCanvas.transform.GetChild(1).GetComponent<InventoryUIUpdate>().Assign();                
+                    if (curInvItem != 0)
+                    {
+                        inventory[curInvItem - 1].gameObject.GetComponent<MatChange>().toggleRotate(false);
+                        invCanvas.transform.GetChild(1).GetComponent<InventoryUIUpdate>().Assign();
+                    }
+                    else
+                    {
+                        interactableGameObject.gameObject.GetComponent<MatChange>().toggleRotate(false);
+                        curUsing = CurrentlyUsing.None;
+                    }
                 }
                 else
                 {
-                    interactableGameObject.gameObject.GetComponent<MatChange>().toggleRotate(false);
-                    curUsing = CurrentlyUsing.None;                    
+                    GameObject lampBase = GameObject.FindGameObjectWithTag("LampBase");
+
+                    lampBase.GetComponent<LampBaseController>().lightBulb.GetComponent<BulbControl>().setMovement(2);
+                    lampBase.GetComponent<LampBaseController>().lightBulb.GetComponent<BulbControl>().GetComponent<BoxCollider>().enabled = false;
+                    lampBase.GetComponent<LampBaseController>().hasBulb = true;
+                    curUsing = CurrentlyUsing.None;
                 }
+                
 
                 RenderText.enabled = false;
             }
@@ -361,7 +368,7 @@ public class playerControl : MonoBehaviour
         }
 
         //Add the current rotating object to inventory
-        if (Input.GetKey(KeyCode.G) && (curUsing == CurrentlyUsing.Special || curUsing == CurrentlyUsing.LightBulb || curUsing == CurrentlyUsing.usingLampBase))
+        if (Input.GetKeyDown(KeyCode.R) && (curUsing == CurrentlyUsing.Special || curUsing == CurrentlyUsing.LightBulb || curUsing == CurrentlyUsing.usingLampBase))
         {
             if (curUsing == CurrentlyUsing.Special)
             {
@@ -404,6 +411,7 @@ public class playerControl : MonoBehaviour
 
                 //Close renderTexture
                 RenderText.enabled = false;
+                lampBase.GetComponent<LampBaseController>().lightBulb.GetComponent<BulbControl>().toggleRotate(false);
 
                 //Clear up light bulb variables as though has no lampbase
                 lampBase.GetComponent<LampBaseController>().lightBulb.GetComponent<BulbControl>().GetComponent<BoxCollider>().enabled = false;

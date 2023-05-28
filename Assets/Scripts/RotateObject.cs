@@ -22,12 +22,12 @@ public class RotateObject : MonoBehaviour
     {
         if(active)
         {
-            rotateObject();
+            MouseInputToRotation();
             KeyboardZoom();
         }
     }
 
-    void rotateObject()
+    void MouseInputToRotation()
     {
         if (Input.GetMouseButtonDown(0))
             posLastFrame = Input.mousePosition;
@@ -36,7 +36,6 @@ public class RotateObject : MonoBehaviour
         if (Input.GetMouseButton(0))
         {
             var delta = Input.mousePosition - posLastFrame;
-           // Debug.Log($"delta: {delta}"); 
             posLastFrame = Input.mousePosition;
 
             var axis = Quaternion.AngleAxis(-90f, Vector3.forward) * delta;
@@ -51,18 +50,12 @@ public class RotateObject : MonoBehaviour
         float x = transform.position.x;
         float y = transform.position.y;
 
-        // Zoom In keyboard input
+        // Toggle Zoomed
         if (Input.GetKeyDown(KeyCode.E)) 
-            zoomed = true; 
+            zoomed = !zoomed; 
         
-        // Zoom Out keyboard input
-        if (Input.GetKeyDown(KeyCode.Q)) 
-            zoomed = false; 
-        
-
         if (zoomed)
             transform.localPosition = new Vector3(x, y, 0.75f);
-
         else
             transform.localPosition = new Vector3(x, y, 1f);
     }
