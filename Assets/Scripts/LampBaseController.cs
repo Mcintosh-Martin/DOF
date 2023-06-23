@@ -15,9 +15,13 @@ public class LampBaseController : MonoBehaviour
     public GameObject lightBulb;
 
     public bool powerOn = false;
+
+    AudioSource lighClickSound;
+
     // Start is called before the first frame update
     void Start()
     {
+        lighClickSound = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -90,6 +94,8 @@ public class LampBaseController : MonoBehaviour
     public void TogglePower()
     {
         powerOn = !powerOn;
+
+        lighClickSound.Play();
 
         if (powerOn)
             lightBulb.GetComponent<BulbControl>().ToggleLight(powerOn);

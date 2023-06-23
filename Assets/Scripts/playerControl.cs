@@ -227,15 +227,6 @@ public class playerControl : MonoBehaviour
 
     private void UIIput()
     {
-        //Test Setting key Up for toggle light power
-        if(Input.GetKeyDown(KeyCode.B))
-        {
-            if(curHovered == CurrentlyHovered.LampBase)
-            {
-                interactableGameObject.GetComponent<LampBaseController>().TogglePower();
-            }
-        }
-        //
         if(Input.GetKeyDown(KeyCode.E))
         {
             switch(curHovered)
@@ -368,7 +359,7 @@ public class playerControl : MonoBehaviour
         }
 
         //Add the current rotating object to inventory
-        if (Input.GetKeyDown(KeyCode.R) && (curUsing == CurrentlyUsing.Special || curUsing == CurrentlyUsing.LightBulb || curUsing == CurrentlyUsing.usingLampBase))
+        if (Input.GetKeyDown(KeyCode.R) /*&& (curUsing == CurrentlyUsing.Special || curUsing == CurrentlyUsing.LightBulb || curUsing == CurrentlyUsing.usingLampBase)*/)
         {
             if (curUsing == CurrentlyUsing.Special)
             {
@@ -420,6 +411,12 @@ public class playerControl : MonoBehaviour
                 lampBase.GetComponent<LampBaseController>().lightBulb = null;
 
                 curUsing = CurrentlyUsing.None;
+            }
+
+            //Toggle lamp power on/off
+            if (curHovered == CurrentlyHovered.LampBase)
+            {
+                interactableGameObject.GetComponent<LampBaseController>().TogglePower();
             }
         }
 

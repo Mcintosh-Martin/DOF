@@ -7,23 +7,27 @@ public class UIManager : MonoBehaviour
 {
     public CurrentlyUsing curUse = CurrentlyUsing.None;
     public CurrentlyHovered curHov = CurrentlyHovered.None;
-    public GameObject[] hoveredText = new GameObject[2];
-    public GameObject[] usingText = new GameObject[3];
+    public GameObject[] hoveredText;
+    public GameObject[] usingText;
 
     GameObject player;
 
     // Start is called before the first frame update
     void Start()
     {
-        hoveredText = new GameObject[2];
+        hoveredText = new GameObject[3];
         usingText = new GameObject[3];
+
         player = GameObject.FindGameObjectWithTag("Player");
-
+        
         for(int i = 0; i < 3; i++)
-            usingText[i] = transform.GetChild(0).transform.GetChild(i).gameObject;
+        {
+            //Pulls gameobject from sub folder /Text/UsingText
+            usingText[i] = transform.GetChild(0).transform.GetChild(0).transform.GetChild(i).gameObject;
 
-        hoveredText[0] = transform.GetChild(0).transform.GetChild(3).gameObject;
-        hoveredText[1] = transform.GetChild(0).transform.GetChild(4).gameObject;
+            //Pulls gameobject from sub folder /Text/HoveredText
+            hoveredText[i] = transform.GetChild(0).transform.GetChild(1).transform.GetChild(i).gameObject;
+        }
 
         ClearHoveredText();
         ClearUsingText();
@@ -32,12 +36,10 @@ public class UIManager : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-
         switch (player.GetComponent<playerControl>().curHovered)
         {
             case CurrentlyHovered.None:
                 ClearHoveredText();
-                
                 break;
             case CurrentlyHovered.Special:
                 DisplayHoveredText(CurrentlyHovered.Special, 1);
@@ -55,6 +57,7 @@ public class UIManager : MonoBehaviour
                 DisplayHoveredText(CurrentlyHovered.LightBulb, 1);
                 break;
             case CurrentlyHovered.LampBase:
+                DisplayHoveredText(CurrentlyHovered.LampBase, 0);
                 DisplayHoveredText(CurrentlyHovered.LampBase, 0);
                 break;
         }
@@ -110,10 +113,29 @@ public class UIManager : MonoBehaviour
 
     private void DisplayHoveredText(CurrentlyHovered hovered, int index)
     {
+        GameObject lampBase = GameObject.FindGameObjectWithTag("LampBase");
+        if (lampBase.GetComponent<LampBaseController>().hasBulb)
+            hoveredText[0].GetComponent<Text>().text = "Press E to REMOVE Bulb";
+        else
+            hoveredText[0].GetComponent<Text>().text = "Press E to ADD Bulb";
+
+        if (lampBase.GetComponent<LampBaseController>().powerOn)
+            hoveredText[1].GetComponent<Text>().text = "Press R to Turn OFF Lamp";
+        else
+            hoveredText[1].GetComponent<Text>().text = "Press R to Turn ON Lamp";
+
         if (curHov != hovered)
         {
             curHov = hovered;
-            hoveredText[index].SetActive(true);
+
+            if (index == 0)
+            {
+                hoveredText[0].SetActive(true);
+                hoveredText[1].SetActive(true);
+            }
+            else
+                hoveredText[2].SetActive(true);            
+        
             Debug.Log(curHov);
         }
     }
